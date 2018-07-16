@@ -7,13 +7,9 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/olebedev/config"
 	"github.com/rivo/tview"
 	"github.com/senorprogrammer/wtf/wtf"
 )
-
-// Config is a pointer to the global config object
-var Config *config.Config
 
 type Widget struct {
 	wtf.TextWidget
@@ -25,7 +21,7 @@ type Widget struct {
 func NewWidget(app *tview.Application, pages *tview.Pages) *Widget {
 	widget := Widget{
 		TextWidget:   wtf.NewTextWidget(" Blockfolio ", "blockfolio", false),
-		device_token: Config.UString("wtf.mods.blockfolio.device_token"),
+		device_token: wtf.Config.UString("wtf.mods.blockfolio.device_token"),
 	}
 
 	return &widget
@@ -41,16 +37,17 @@ func (widget *Widget) Refresh() {
 	if err != nil {
 		return
 	}
-	widget.View.SetText(fmt.Sprintf("%s", contentFrom(positions)))
+
+	widget.View.SetText(contentFrom(positions))
 }
 
 /* -------------------- Unexported Functions -------------------- */
 func contentFrom(positions *AllPositionsResponse) string {
 	res := ""
-	colorName := Config.UString("wtf.mods.blockfolio.colors.name")
-	colorGrows := Config.UString("wtf.mods.blockfolio.colors.grows")
-	colorDrop := Config.UString("wtf.mods.blockfolio.colors.drop")
-	displayHoldings := Config.UBool("wtf.mods.blockfolio.displayHoldings")
+	colorName := wtf.Config.UString("wtf.mods.blockfolio.colors.name")
+	colorGrows := wtf.Config.UString("wtf.mods.blockfolio.colors.grows")
+	colorDrop := wtf.Config.UString("wtf.mods.blockfolio.colors.drop")
+	displayHoldings := wtf.Config.UBool("wtf.mods.blockfolio.displayHoldings")
 	var totalFiat float32
 	totalFiat = 0.0
 	for i := 0; i < len(positions.PositionList); i++ {
@@ -76,15 +73,15 @@ func contentFrom(positions *AllPositionsResponse) string {
 const magic = "edtopjhgn2345piuty89whqejfiobh89-2q453"
 
 type Position struct {
-	Coin                            string  `json:coin`
-	LastPriceFiat                   float32 `json:lastPriceFiat`
-	TwentyFourHourPercentChangeFiat float32 `json:twentyFourHourPercentChangeFiat`
-	Quantity                        float32 `json:quantity`
-	HoldingValueFiat                float32 `json:holdingValueFiat`
+	Coin                            string  `json:"coin"`
+	LastPriceFiat                   float32 `json:"lastPriceFiat"`
+	TwentyFourHourPercentChangeFiat float32 `json:"twentyFourHourPercentChangeFiat"`
+	Quantity                        float32 `json:"quantity"`
+	HoldingValueFiat                float32 `json:"holdingValueFiat"`
 }
 
 type AllPositionsResponse struct {
-	PositionList []Position `json:positionList`
+	PositionList []Position `json:"positionList"`
 }
 
 func MakeApiRequest(token string, method string) ([]byte, error) {
@@ -108,10 +105,10 @@ func MakeApiRequest(token string, method string) ([]byte, error) {
 }
 
 func GetAllPositions(token string) (*AllPositionsResponse, error) {
-	jsn, err := MakeApiRequest(token, "get_all_positions")
+	jsn, _ := MakeApiRequest(token, "get_all_positions")
 	var parsed AllPositionsResponse
 
-	err = json.Unmarshal(jsn, &parsed)
+	err := json.Unmarshal(jsn, &parsed)
 	if err != nil {
 		log.Fatalf("Failed to parse json %v", err)
 		return nil, err

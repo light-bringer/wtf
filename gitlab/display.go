@@ -10,7 +10,7 @@ func (widget *Widget) display() {
 
 	project := widget.currentGitlabProject()
 	if project == nil {
-		fmt.Fprintf(widget.View, "%s", " Gitlab project data is unavailable (1)")
+		widget.View.SetText(" Gitlab project data is unavailable ")
 		return
 	}
 
@@ -21,10 +21,10 @@ func (widget *Widget) display() {
 	str = str + widget.displayStats(project)
 	str = str + "\n"
 	str = str + " [red]Open Approval Requests[white]\n"
-	str = str + widget.displayMyApprovalRequests(project, Config.UString("wtf.mods.gitlab.username"))
+	str = str + widget.displayMyApprovalRequests(project, wtf.Config.UString("wtf.mods.gitlab.username"))
 	str = str + "\n"
 	str = str + " [red]My Merge Requests[white]\n"
-	str = str + widget.displayMyMergeRequests(project, Config.UString("wtf.mods.gitlab.username"))
+	str = str + widget.displayMyMergeRequests(project, wtf.Config.UString("wtf.mods.gitlab.username"))
 
 	widget.View.SetText(str)
 }

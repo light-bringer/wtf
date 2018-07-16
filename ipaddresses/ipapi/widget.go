@@ -9,12 +9,8 @@ import (
 
 	"bytes"
 
-	"github.com/olebedev/config"
 	"github.com/senorprogrammer/wtf/wtf"
 )
-
-// Config is a pointer to the global config object
-var Config *config.Config
 
 // Widget widget struct
 type Widget struct {
@@ -65,20 +61,20 @@ func (widget *Widget) ipinfo() {
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", "http://ip-api.com/json", nil)
 	if err != nil {
-		widget.result = fmt.Sprintf("%s", err.Error())
+		widget.result = err.Error()
 		return
 	}
 	req.Header.Set("User-Agent", "curl")
 	response, err := client.Do(req)
 	if err != nil {
-		widget.result = fmt.Sprintf("%s", err.Error())
+		widget.result = err.Error()
 		return
 	}
 	defer response.Body.Close()
 	var info ipinfo
 	err = json.NewDecoder(response.Body).Decode(&info)
 	if err != nil {
-		widget.result = fmt.Sprintf("%s", err.Error())
+		widget.result = err.Error()
 		return
 	}
 
@@ -87,7 +83,7 @@ func (widget *Widget) ipinfo() {
 
 // read module configs
 func (widget *Widget) config() {
-	nameColor, valueColor := Config.UString("wtf.mods.ipinfo.colors.name", "red"), Config.UString("wtf.mods.ipinfo.colors.value", "white")
+	nameColor, valueColor := wtf.Config.UString("wtf.mods.ipinfo.colors.name", "red"), wtf.Config.UString("wtf.mods.ipinfo.colors.value", "white")
 	widget.colors.name = nameColor
 	widget.colors.value = valueColor
 }

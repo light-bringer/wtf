@@ -186,19 +186,6 @@ var notificationLevelTypes = map[string]NotificationLevelValue{
 	"custom":        CustomNotificationLevel,
 }
 
-// OrderByValue represent in which order to sort the item
-type OrderByValue string
-
-// These constants represent all valid order by values.
-const (
-	OrderByCreatedAt OrderByValue = "created_at"
-	OrderByID        OrderByValue = "id"
-	OrderByIID       OrderByValue = "iid"
-	OrderByRef       OrderByValue = "ref"
-	OrderByStatus    OrderByValue = "status"
-	OrderByUserID    OrderByValue = "user_id"
-)
-
 // VisibilityValue represents a visibility level within GitLab.
 //
 // GitLab API docs: https://docs.gitlab.com/ce/api/
@@ -680,6 +667,7 @@ func parseID(id interface{}) (string, error) {
 // GitLab API docs:
 // https://docs.gitlab.com/ce/api/README.html#data-validation-and-error-reporting
 type ErrorResponse struct {
+	Body     []byte
 	Response *http.Response
 	Message  string
 }
@@ -700,12 +688,14 @@ func CheckResponse(r *http.Response) error {
 	errorResponse := &ErrorResponse{Response: r}
 	data, err := ioutil.ReadAll(r.Body)
 	if err == nil && data != nil {
+		errorResponse.Body = data
+
 		var raw interface{}
 		if err := json.Unmarshal(data, &raw); err != nil {
 			errorResponse.Message = "failed to parse unknown error format"
+		} else {
+			errorResponse.Message = parseError(raw)
 		}
-
-		errorResponse.Message = parseError(raw)
 	}
 
 	return errorResponse
@@ -825,14 +815,6 @@ func BuildState(v BuildStateValue) *BuildStateValue {
 // to store v and returns a pointer to it.
 func NotificationLevel(v NotificationLevelValue) *NotificationLevelValue {
 	p := new(NotificationLevelValue)
-	*p = v
-	return p
-}
-
-// OrderBy is a helper routine that allocates a new OrderByValue
-// to store v and returns a pointer to it.
-func OrderBy(v OrderByValue) *OrderByValue {
-	p := new(OrderByValue)
 	*p = v
 	return p
 }

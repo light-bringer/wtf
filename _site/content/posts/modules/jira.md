@@ -21,7 +21,20 @@ wtf/jira/
 
 ## Keyboard Commands
 
-None.
+<span class="caption">Key:</span> `[return]` <br />
+<span class="caption">Action:</span> Open the selected issue in the browser.
+
+<span class="caption">Key:</span> `j` <br />
+<span class="caption">Action:</span> Select the next item in the list.
+
+<span class="caption">Key:</span> `k` <br />
+<span class="caption">Action:</span> Select the previous item in the list.
+
+<span class="caption">Key:</span> `↓` <br />
+<span class="caption">Action:</span> Select the next item in the list.
+
+<span class="caption">Key:</span> `↑` <br />
+<span class="caption">Action:</span> Select the previous item in the list.
 
 ## Configuration
 
@@ -45,6 +58,7 @@ jira:
   project: "ProjectA"
   refreshInterval: 900
   username: "chris.cummer"
+  verifyServerCertificate: true
 ```
 
 ### Multiple Jira Projects
@@ -70,6 +84,7 @@ jira:
   project: ["ProjectA", "ProjectB"]
   refreshInterval: 900
   username: "chris.cummer"
+  verifyServerCertificate: true
 ```
 
 ### Attributes
@@ -113,3 +128,8 @@ Values: A positive integer, `0..n`.
 
 `username` <br />
 Your Jira username. <br />
+
+`verifyServerCertificate` <br />
+_Optional_ <br />
+Determines whether or not the server's certificate chain and host name are verified. <br />
+Values: `true`, `false`.

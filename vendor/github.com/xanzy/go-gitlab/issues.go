@@ -310,7 +310,7 @@ type UpdateIssueOptions struct {
 	Title            *string    `url:"title,omitempty" json:"title,omitempty"`
 	Description      *string    `url:"description,omitempty" json:"description,omitempty"`
 	Confidential     *bool      `url:"confidential,omitempty" json:"confidential,omitempty"`
-	AssigneeID       *int       `url:"assignee_id,omitempty" json:"assignee_id,omitempty"`
+	AssigneeIDs      []int      `url:"assignee_ids,omitempty" json:"assignee_ids,omitempty"`
 	MilestoneID      *int       `url:"milestone_id,omitempty" json:"milestone_id,omitempty"`
 	Labels           Labels     `url:"labels,comma,omitempty" json:"labels,omitempty"`
 	StateEvent       *string    `url:"state_event,omitempty" json:"state_event,omitempty"`
@@ -360,6 +360,39 @@ func (s *IssuesService) DeleteIssue(pid interface{}, issue int, options ...Optio
 	}
 
 	return s.client.Do(req, nil)
+}
+
+// ListMergeRequestsClosingIssueOptions represents the available
+// ListMergeRequestsClosingIssue() options.
+//
+// GitLab API docs:
+// https://docs.gitlab.com/ce/api/issues.html#list-merge-requests-that-will-close-issue-on-merge
+type ListMergeRequestsClosingIssueOptions ListOptions
+
+// ListMergeRequestsClosingIssue gets all the merge requests that will close
+// issue when merged.
+//
+// GitLab API docs:
+// https://docs.gitlab.com/ce/api/issues.html#list-merge-requests-that-will-close-issue-on-merge
+func (s *IssuesService) ListMergeRequestsClosingIssue(pid interface{}, issue int, opt *ListMergeRequestsClosingIssueOptions, options ...OptionFunc) ([]*MergeRequest, *Response, error) {
+	project, err := parseID(pid)
+	if err != nil {
+		return nil, nil, err
+	}
+	u := fmt.Sprintf("/projects/%s/issues/%d/closed_by", url.QueryEscape(project), issue)
+
+	req, err := s.client.NewRequest("GET", u, opt, options)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var m []*MergeRequest
+	resp, err := s.client.Do(req, &m)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return m, resp, err
 }
 
 // SetTimeEstimate sets the time estimate for a single project issue.
